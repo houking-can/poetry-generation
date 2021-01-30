@@ -6,6 +6,7 @@ from sample import generate, gen_acrostic
 from dataHandler import load_data
 import os
 
+
 def train():
     if Config.use_gpu and torch.cuda.is_available():
         Config.device = torch.device("cuda:0")
@@ -16,9 +17,9 @@ def train():
     data, char2ix, ix2char = load_data()
     data = torch.from_numpy(data)
     data_loader = DataLoader(data,
-                            batch_size=Config.batch_size,
-                            shuffle=True,
-                            num_workers=1)
+                             batch_size=Config.batch_size,
+                             shuffle=True,
+                             num_workers=1)
 
     # 定义模型
     model = PoetryModel(len(char2ix),
@@ -45,12 +46,16 @@ def train():
             optimizer.step()
             # 进行可视化
             if (1 + step) % Config.plot_every == 0:
-                save_path = os.path.join(Config.model_root, "tang_%s_%s.pth" % (epoch,step))
-                print("%s loss: %f" % (save_path,loss.data))
-                for word in list(u"天青色等烟雨"):
-                    gen_poetry = ''.join(gen_acrostic(model, word, ix2char, char2ix))
-                    print(gen_poetry)
+                save_path = os.path.join(Config.model_root, "tang_%s_%s.pth" % (epoch, step))
+                print("%s loss: %f" % (save_path, loss.data))
                 torch.save(model.state_dict(), save_path)
+                if Config.acrostic:
+                    for word in list(u"春江潮水连海平"):
+                        gen_poetry = ''.join(gen_acrostic(model, word, ix2char, char2ix))
+                        print(gen_poetry)
+                else:
+                    gen_poetry = ''.join(generate(model, u"春江潮水连海平", ix2char, char2ix))
+                    print(gen_poetry)
 
 
 if __name__ == '__main__':
