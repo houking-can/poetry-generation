@@ -14,7 +14,7 @@
 > Geforce 1080 8G, 20epoch，耗时6h，如果GPU内存强悍的话可以调大`--batch-size`
 
 ```bash
-python train.py --max-epochs=20 --batch-size=256
+python run.py --mode train --max-epochs=20 --batch-size=32
 ```
 
 
@@ -23,7 +23,7 @@ python train.py --max-epochs=20 --batch-size=256
 > 给定`-txt`提示词，即可自动生成唐诗
 
 ```bash
-python run.py --mode test -txt 秋色见浮生，
+python run.py --mode test --txt 秋色见浮生，
 ```
 
 当做首句效果如下：
