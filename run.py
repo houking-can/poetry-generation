@@ -49,6 +49,8 @@ def train(dataset, model, args):
 
 
 def predict(dataset, model, text, total_words=24):
+    # 添加逗号，接下来生成的诗比较整齐
+    text += '，'
     words = list(text)
     words_len = len(words)
     model.eval()
@@ -89,7 +91,7 @@ def predict_head(dataset, model, text):
     words_len = len(words)
     model.eval()
 
-    pre_word = '。' #也可设置为<START>, 但是会导致第一句出问题
+    pre_word = '。'  # 也可设置为<START>, 但是会导致第一句出问题
     result = []
     head_index = 0
     # 手动设置第一个词为<START>
@@ -104,8 +106,6 @@ def predict_head(dataset, model, text):
             w = words[head_index]
             input = input.data.new([dataset.word_to_index[w]]).view(1, 1)
             head_index += 1
-            if head_index == words_len:
-                break
             result.append(w)
         else:
             # 预测字的索引
@@ -117,9 +117,11 @@ def predict_head(dataset, model, text):
             # 拼接到input中继续传递
             input = input.data.new([top_index]).view(1, 1)
 
+        if head_index == words_len and w in ['。', '！']:
+            break
+
         # 记录上一个字
         pre_word = w
-
 
         if w == '<EOP>':
             del result[-1]
@@ -136,7 +138,7 @@ parser.add_argument('--max-epochs', type=int, default=10)
 parser.add_argument('--batch-size', type=int, default=256)
 parser.add_argument('--sequence-length', type=int, default=256)
 parser.add_argument('--mode', type=str, default='test')
-parser.add_argument('--txt', type=str, default='水花翻照树，')
+parser.add_argument('--txt', type=str, default='秋色见浮生')
 parser.add_argument('--previous', type=int, default=0)
 
 args = parser.parse_args()
@@ -152,10 +154,16 @@ if __name__ == "__main__":
     if args.mode == 'test':
         # 加载数据
         model.load_state_dict(torch.load('model_data/trained100.pth', map_location=device))
-        print("提供首句（5字），生成的诗如下：")
-        print(predict(dataset, model, text=args.txt, total_words=48))
-        print("生成的藏头诗如下：")
-        print(predict_head(dataset, model, text=args.txt))
+        raw_text = args.txt
+        # 去掉句末的标点符号
+        if raw_text[-1] in ['，', '。', '！']:
+            raw_text = raw_text[:-1]
+
+        print("\"%s\" -> 做首句效果：" % raw_text)
+        print(predict(dataset, model, text=raw_text, total_words=48))
+
+        print("\"%s\" -> 藏头诗效果：" % raw_text)
+        print(predict_head(dataset, model, text=raw_text))
 
     else:
         # 继续之前的训练
