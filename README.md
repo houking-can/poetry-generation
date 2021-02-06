@@ -20,10 +20,10 @@ python run.py --mode train --max-epochs=20 --batch-size=32
 
 ## 生成
 
-> 给定`-txt`提示词，即可自动生成唐诗
+> 给定`-txt`提示词，即可自动生成唐诗（由于训练数据是5言，推荐预测时也输入5个字）
 
 ```bash
-python run.py --mode test --txt 秋色见浮生，
+python run.py --mode test --txt 秋色见浮生
 ```
 
 当做首句效果如下：
